@@ -1,40 +1,24 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useGLTF, Bounds, Center, OrbitControls } from "@react-three/drei";
-import { Suspense, useRef } from "react";
+import { OrbitControls, Bounds, Center, Environment } from "@react-three/drei";
+import { Suspense, useRef, useEffect } from "react";
 import * as THREE from "three";
-function Model() {
+import { useGLTF } from "@react-three/drei";
+
+function Model({ scrollProgress }: { scrollProgress: number }) {
   const { scene } = useGLTF(
     "https://modelviewer.dev/shared-assets/models/Astronaut.glb"
   );
 
   const ref = useRef<THREE.Group>(null);
-  const { mouse } = useThree();
 
-  // ENHANCED MOUSE TRACKING WITH FLOATING ANIMATION
-  useFrame(() => {
-    if (!ref.current) return;
-
-    const time = Date.now() * 0.001;
-    
-    // Smooth mouse rotation
-    ref.current.rotation.y = THREE.MathUtils.lerp(
-      ref.current.rotation.y,
-      mouse.x * 1.5,
-      0.08
-    );
-
-    // Subtle floating animation
-    ref.current.position.y = Math.sin(time * 1.5) * 0.1;
-    
-    // Gentle head movement
-    ref.current.rotation.x = THREE.MathUtils.lerp(
-      ref.current.rotation.x,
-      Math.sin(time * 0.8) * 0.05,
-      0.05
-    );
-  });
+  // Keep model facing front - no rotation
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.rotation.y = 0; // Face front
+    }
+  }, []);
 
   return (
     <group ref={ref} scale={8}>
@@ -73,7 +57,7 @@ function Shadow() {
   );
 }
 
-export default function Robot3D() {
+export default function Robot3D({ scrollProgress = 0 }: { scrollProgress?: number }) {
   return (
     <Canvas
       className="w-full h-full"
@@ -100,7 +84,7 @@ export default function Robot3D() {
       <Suspense fallback={null}>
         <Bounds fit clip observe margin={1.3}>
           <Center>
-            <Model />
+            <Model scrollProgress={scrollProgress} />
           </Center>
           <Shadow />
         </Bounds>
@@ -109,6 +93,7 @@ export default function Robot3D() {
       <OrbitControls
         enableZoom={false}
         enablePan={false}
+        enableRotate={false}
       />
     </Canvas>
   );

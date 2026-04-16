@@ -57,8 +57,20 @@
 //   );
 // }
 
-import Hero from "./components/Hero";
+"use client";
+
+import { useEffect } from "react";
+import MainContainer from "./components/MainContainer";
 
 export default function Home() {
-  return <Hero />;
+  useEffect(() => {
+    // Enable smooth scrolling
+    document.documentElement.style.scrollBehavior = "smooth";
+    
+    return () => {
+      document.documentElement.style.scrollBehavior = "";
+    };
+  }, []);
+
+  return <MainContainer />;
 }
